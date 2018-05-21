@@ -1,34 +1,76 @@
 import React, { Component } from 'react';
-import { Bar, Line } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import {
-  Badge,
-  Button,
-  ButtonDropdown,
-  ButtonGroup,
-  ButtonToolbar,
   Card,
   CardBody,
   CardFooter,
-  CardHeader,
-  CardTitle,
   Col,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  Progress,
   Row,
-  Table,
 } from 'reactstrap';
-import Widget03 from '../../views/Widgets/Widget03'
+import { connect } from 'react-redux';
+import { fetchTemperaturesAndHumidities } from '../../actions';
 import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities'
 
-const brandPrimary = getStyle('--primary')
-const brandSuccess = getStyle('--success')
 const brandInfo = getStyle('--info')
-const brandWarning = getStyle('--warning')
-const brandDanger = getStyle('--danger')
+
+let mainChart = {
+  labels: [],
+  datasets: [
+    {
+      label: 'Temperatures',
+      backgroundColor: hexToRgba(brandInfo, 10),
+      borderColor: brandInfo,
+      pointHoverBackgroundColor: '#fff',
+      borderWidth: 2,
+      data: [],
+    },
+  ],
+};
+
+const mainChartOpts = {
+  tooltips: {
+    enabled: false,
+    custom: CustomTooltips,
+    intersect: true,
+    mode: 'index',
+    position: 'nearest',
+    callbacks: {
+      labelColor: function(tooltipItem, chart) {
+        return { backgroundColor: chart.data.datasets[tooltipItem.datasetIndex].borderColor }
+      }
+    }
+  },
+  maintainAspectRatio: false,
+  legend: {
+    display: false,
+  },
+  scales: {
+    xAxes: [
+      {
+        gridLines: {
+          drawOnChartArea: false,
+        },
+      }],
+    yAxes: [
+      {
+        ticks: {
+          beginAtZero: true,
+          maxTicksLimit: 5,
+          stepSize: Math.ceil(250 / 5),
+          max: 250,
+        },
+      }],
+  },
+  elements: {
+    point: {
+      radius: 0,
+      hitRadius: 10,
+      hoverRadius: 4,
+      hoverBorderWidth: 3,
+    },
+  },
+};
 
 class Dashboard extends Component {
   constructor(props) {
@@ -41,6 +83,10 @@ class Dashboard extends Component {
       dropdownOpen: false,
       radioSelected: 2,
     };
+  }
+
+  componentDidMount() {
+    this.props.fetchTemperaturesAndHumidities();
   }
 
   toggle() {
@@ -57,13 +103,39 @@ class Dashboard extends Component {
 
   render() {
 
+    mainChart.datasets[0].data = this.props.temperatures.map(obj => obj.value);
+    mainChart.labels = this.props.temperatures.map(obj => obj.createdAt);
+
+    console.log(this.props.temperatures);
+
     return (
       <div className="animated fadeIn">
         <Row>
+          <Col xs="12" sm="10" lg="10">
+            <Card>
+              <CardBody>
+                <div className="chart-wrapper" style={{ marginTop: 40 + 'px' }}>
+                  <Line data={mainChart} options={{mainChartOpts}} height={300} />
+                </div>
+              </CardBody>
+              <CardFooter>
+                <Row className="text-center">
+                </Row>
+              </CardFooter>
+            </Card>
+          </Col>
         </Row>
       </div>
     );
   }
 }
 
-export default Dashboard;
+const mapStateToProps = state => ({
+  temperatures: state.temperatures,
+  humidities: state.humidities,
+});
+
+export default connect(
+  mapStateToProps,
+  { fetchTemperaturesAndHumidities },
+)(Dashboard);
