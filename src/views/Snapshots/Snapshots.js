@@ -2,23 +2,21 @@ import React, { Component } from 'react';
 import {
   Card,
   CardBody,
-  CardFooter,
+  CardImg,
+  CardTitle,
   Col,
   Row,
 } from 'reactstrap';
 import { connect } from 'react-redux';
+import moment from 'moment';
 import { fetchSnapshots } from '../../actions';
 
 class Snapshots extends Component {
   constructor(props) {
     super(props);
 
-    this.toggle = this.toggle.bind(this);
-    this.onRadioBtnClick = this.onRadioBtnClick.bind(this);
-
     this.state = {
-      dropdownOpen: false,
-      radioSelected: 2,
+      snapshots: [],
     };
   }
 
@@ -26,41 +24,28 @@ class Snapshots extends Component {
     this.props.fetchSnapshots();
   }
 
-  toggle() {
-    this.setState({
-      dropdownOpen: !this.state.dropdownOpen,
-    });
-  }
-
-  onRadioBtnClick(radioSelected) {
-    this.setState({
-      radioSelected: radioSelected,
-    });
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.snapshots) {
+      this.setState({ snapshots: nextProps.snapshots });
+    }
   }
 
   render() {
-
-    console.log(this.props.snapshots);
-
     return (
       <div className="animated fadeIn">
         <Row>
-          <Col xs="12" sm="10" lg="10">
-            <Card>
-              <CardBody>
-              </CardBody>
-              <CardFooter>
-                <Row className="text-center">
-                  {this.props.snapshots.map((snapshot, index) => {
-                    console.log(snapshot.uri);
-                    return (
-                      <img key={index} src={snapshot.uri} className="d-block w-100"></img>
-                    );
-                  })}
-                </Row>
-              </CardFooter>
-            </Card>
-          </Col>
+          {this.state.snapshots.map((snapshot, index) => {
+            return (
+              <Col key={index} xs="6" sm="4" lg="3">
+                <Card>
+                  <CardImg top width="100%" src={snapshot.uri} alt={snapshot.createdAt} />
+                  <CardBody>
+                    <CardTitle>{moment(snapshot.createdAt).format('M/D/YYYY h:mma')}</CardTitle>
+                  </CardBody>
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
       </div>
     );

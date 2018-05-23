@@ -8,6 +8,7 @@ import {
   Row,
 } from 'reactstrap';
 import { connect } from 'react-redux';
+import moment from 'moment';
 import { fetchTemperaturesAndHumidities } from '../../actions';
 import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities'
@@ -76,12 +77,8 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
 
-    this.toggle = this.toggle.bind(this);
-    this.onRadioBtnClick = this.onRadioBtnClick.bind(this);
-
     this.state = {
-      dropdownOpen: false,
-      radioSelected: 2,
+      temperatures: [],
     };
   }
 
@@ -89,24 +86,31 @@ class Dashboard extends Component {
     this.props.fetchTemperaturesAndHumidities();
   }
 
-  toggle() {
-    this.setState({
-      dropdownOpen: !this.state.dropdownOpen,
-    });
-  }
-
-  onRadioBtnClick(radioSelected) {
-    this.setState({
-      radioSelected: radioSelected,
-    });
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.temperatures) {
+      let temperatures = nextProps.temperatures.reverse();
+      this.setState({ temperatures });
+    }
   }
 
   render() {
 
-    mainChart.datasets[0].data = this.props.temperatures.map(obj => obj.value);
-    mainChart.labels = this.props.temperatures.map(obj => obj.createdAt);
+    mainChart.datasets[0].data = this.state.temperatures.map(obj => obj.value);
+    let previousDate;
+    mainChart.labels = this.state.temperatures.map((obj) => {
+      let label;
+      let createdAt = obj.createdAt;
+      let date = moment(createdAt).format('M/D/YYYY');
+      if (date === previousDate) {
+        label = moment(createdAt).format('h:mma');
+      } else {
+        label = moment(createdAt).format('M/D/YYYY h:mma');
+      }
+      previousDate = date;
+      return label;
+    });
 
-    console.log(this.props.temperatures);
+    console.log(this.state.temperatures);
 
     return (
       <div className="animated fadeIn">
