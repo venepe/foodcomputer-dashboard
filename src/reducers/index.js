@@ -4,6 +4,7 @@ const initialState = {
   temperatures: [],
   humidities: [],
   snapshots: [],
+  snapshot: {},
   isLoading: false,
 };
 
@@ -34,6 +35,16 @@ const reducer = (state = initialState, action) => {
         snapshots: [
           ...action.payload.snapshots,
         ],
+        isLoading: false,
+      };
+    case RequestTypes.REQUEST_SNAPSHOT:
+      return { ...state,
+        ...action.payload,
+        isLoading: true,
+      };
+    case RequestTypes.RECEIVE_SNAPSHOT:
+      return { ...state,
+        snapshot: action.payload.snapshot,
         isLoading: false,
       };
     default:

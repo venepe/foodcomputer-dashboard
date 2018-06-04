@@ -22,6 +22,16 @@ export const receiveSnapshots = payload => ({
   ...payload,
 });
 
+export const requestSnapshot = payload => ({
+  type: RequestTypes.REQUEST_SNAPSHOT,
+  ...payload,
+});
+
+export const receiveSnapshot = payload => ({
+  type: RequestTypes.RECEIVE_SNAPSHOT,
+  ...payload,
+});
+
 export const fetchTemperaturesAndHumidities = () =>
   (dispatch) => {
     dispatch(requestTemperaturesAndHumidities());
@@ -50,6 +60,29 @@ export const fetchSnapshots = () =>
         console.log(snapshots);
         dispatch(receiveSnapshots({ payload: { snapshots } }));
       });
+  };
+
+export const fetchSnapshot = id =>
+  (dispatch, getState) => {
+
+    dispatch(requestSnapshot());
+
+    const snapshot = getState().snapshots.find((snapshot) => {
+      if (snapshot.id === id) {
+        return snapshot;
+      }
+    });
+
+    if (snapshot) {
+      dispatch(receiveSnapshot({ payload: { snapshot } }));
+    } else {
+      axios.get(`${projectUrl}/snapshots/${id}`)
+        .then((result) => {
+          const snapshot = result.data;
+          console.log(snapshot);
+          dispatch(receiveSnapshot({ payload: { snapshot } }));
+        });
+    }
   };
 
 const actions = {

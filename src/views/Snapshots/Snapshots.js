@@ -30,14 +30,19 @@ class Snapshots extends Component {
     }
   }
 
+  didClickSnapshot(id) {
+    const { history } = this.props;
+    history.push(`/snapshots/${id}`);
+  }
+
   render() {
     return (
       <div className="animated fadeIn">
         <Row>
           {this.state.snapshots.map((snapshot, index) => {
             return (
-              <Col key={index} xs="6" sm="4" lg="3">
-                <Card>
+              <Col key={index} xs="6" sm="4" lg="3" onClick={() => this.didClickSnapshot(snapshot.id)}>
+                <Card style={{cursor: "pointer"}}>
                   <CardImg top width="100%" src={snapshot.uri} alt={snapshot.createdAt} />
                   <CardBody>
                     <CardTitle>{moment(snapshot.createdAt).format('M/D/YYYY h:mma')}</CardTitle>

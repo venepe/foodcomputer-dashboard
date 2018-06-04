@@ -17,10 +17,16 @@ const Snapshots = Loadable({
   loading: Loading,
 });
 
+const SnapshotDetail = Loadable({
+  loader: () => import('./views/SnapshotDetail'),
+  loading: Loading,
+});
+
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = [
   { path: '/', exact: true, name: 'Home', component: DefaultLayout },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard },
+  { path: '/snapshots/:id', name: 'Snapshots', component: SnapshotDetail },
   { path: '/snapshots', name: 'Snapshots', component: Snapshots },
 ];
 
