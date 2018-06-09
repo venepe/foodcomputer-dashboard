@@ -1,6 +1,7 @@
 import axios from 'axios';
 import RequestTypes from '../constants/RequestTypes';
 import { projectUrl } from '../config';
+import { Events, track } from '../utils/MAnalytics';
 
 export const requestTemperaturesAndHumidities = payload => ({
   type: RequestTypes.REQUEST_TEMP_AND_HUM,
@@ -35,9 +36,9 @@ export const receiveSnapshot = payload => ({
 export const fetchTemperaturesAndHumidities = () =>
   (dispatch) => {
     dispatch(requestTemperaturesAndHumidities());
+    track(Events.VIEWED_TEMPERATURES, {});
     const endpoints = ['temperatures', 'humidities'];
 
-    console.log('fetchTemperaturesAndHumidities');
     let promises = endpoints.map((endpoint, index) => axios.get(
       `${projectUrl}/${endpoint}`));
 
@@ -52,8 +53,8 @@ export const fetchTemperaturesAndHumidities = () =>
 export const fetchSnapshots = () =>
   (dispatch) => {
     dispatch(requestSnapshots());
+    track(Events.VIEWED_SNAPSHOTS, {});
 
-    console.log('fetchSnapshots');
     axios.get(`${projectUrl}/snapshots`)
       .then((result) => {
         const snapshots = result.data;
@@ -64,8 +65,8 @@ export const fetchSnapshots = () =>
 
 export const fetchSnapshot = id =>
   (dispatch, getState) => {
-
     dispatch(requestSnapshot());
+    track(Events.VIEWED_SNAPSHOT, { id });
 
     const snapshot = getState().snapshots.find((snapshot) => {
       if (snapshot.id === id) {
@@ -79,7 +80,6 @@ export const fetchSnapshot = id =>
       axios.get(`${projectUrl}/snapshots/${id}`)
         .then((result) => {
           const snapshot = result.data;
-          console.log(snapshot);
           dispatch(receiveSnapshot({ payload: { snapshot } }));
         });
     }

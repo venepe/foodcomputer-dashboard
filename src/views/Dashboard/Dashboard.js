@@ -19,12 +19,13 @@ let mainChart = {
   labels: [],
   datasets: [
     {
-      label: 'Temperatures',
+      label: 'Temperature',
       backgroundColor: hexToRgba(brandInfo, 10),
       borderColor: brandInfo,
       pointHoverBackgroundColor: '#fff',
       borderWidth: 2,
       data: [],
+
     },
   ],
 };
@@ -37,8 +38,8 @@ const mainChartOpts = {
     mode: 'index',
     position: 'nearest',
     callbacks: {
-      labelColor: function(tooltipItem, chart) {
-        return { backgroundColor: chart.data.datasets[tooltipItem.datasetIndex].borderColor }
+      labelColor: (tooltipItem, chart) => {
+        { backgroundColor: chart.data.datasets[tooltipItem.datasetIndex].borderColor }
       }
     }
   },
@@ -95,7 +96,7 @@ class Dashboard extends Component {
 
   render() {
 
-    mainChart.datasets[0].data = this.state.temperatures.map(obj => obj.value);
+    mainChart.datasets[0].data = this.state.temperatures.map(obj => (obj.value * 9 / 5 + 32).toFixed(2));
     let previousDate;
     mainChart.labels = this.state.temperatures.map((obj) => {
       let label;
